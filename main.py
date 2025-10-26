@@ -1,4 +1,5 @@
 import os
+from rich import print
 
 #USER VARIABLES
 app_name='appname'
@@ -8,7 +9,6 @@ app_comment=''
 #PROGRAM VARIABLES
 directory = os.path.expandvars('$HOME/.local/share/applications/')
 
-
 #FUNCTIONS
 def create_file():
     desktop_entry = f'''
@@ -16,13 +16,13 @@ def create_file():
     Type=Application
 
     Name={app_name}
-    Exec=brave --app={app_url}
-    Icon=preferences-desktop
+    Exec=brave --app={app_url} --user-data-dir={directory}/webapp_sessions/{app_name.lower()}_session
+    Icon={app_name}
 
     Comment={app_comment}
 
-    Categories=AudioVideo;Audio;
-    Keywords=alsamixer;alsa;mixer;sound;volume;
+    Categories=;
+    Keywords=;
 
     NoDisplay=false
     '''
@@ -33,8 +33,8 @@ def create_file():
     exit()
 
 def sanitize_url(raw_url):
-    raw_url.strip
-    if raw_url.startswith('https://'):
+    raw_url = raw_url.strip()
+    if raw_url.startswith("https://"):
         raw_url = raw_url.replace('https://', "")
     elif raw_url.startswith('http://'):
         raw_url = raw_url.replace('http://', "")
@@ -59,7 +59,7 @@ def ask_creation_data():
     create_file()
 
 def main():
-    print("Webapp entry creator \nby Caio Abrahão \n")
+    print("[bold magenta] Webapp entry creator \nby Caio Abrahão[/bold magenta] \n")
 
     while True:
         option = input("1.Start Creator \n2.Help \n3.Exit \nOption:")
