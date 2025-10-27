@@ -1,9 +1,26 @@
-import os
+import os, sys, time
+from pathlib import Path
+
+# sobe um nível e adiciona ao sys.path
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+
+from .input_sanitization import sanitize_url
+from data.texts import successMessage
+
+from rich.progress import track
+from rich import print
+from rich.console import Console
+from rich.markdown import Markdown
+
+console = Console()
 
 #USER VARIABLES
-app_name='appname'
-app_url='appurl'
+app_name='null'
+app_url='null'
 app_comment=''
+app_categories=[]
+app_keywords=[]
 
 #PROGRAM VARIABLES
 directory = os.path.expandvars('$HOME/.local/share/applications/')
@@ -19,46 +36,49 @@ def create_file():
 
     Comment={app_comment}
 
-    Categories=;
-    Keywords=;
+    Categories={app_categories}
+    Keywords={app_keywords}
 
     NoDisplay=false
     '''
 
+    for i in track(range(1), description="✨ Creating Desktop File..."):
+        time.sleep(1)  # Simulate work just to give it some flair
+
     with open(f'{directory}{app_name}.desktop', 'w') as f:
         f.write(desktop_entry)
-    print("File Created!")
-    os.chmod(f'{directory}{app_name}.desktop', 0o755)
-    exit()
 
-def sanitize_url(raw_url):
-    raw_url = raw_url.strip()
-    if raw_url.startswith("https://"):
-        raw_url = raw_url.replace('https://', "")
-    elif raw_url.startswith('http://'):
-        raw_url = raw_url.replace('http://', "")
-    
-    full_url = f'https://{raw_url}'
-    return full_url
+    successMessage_md = successMessage(directory, app_name)
+    console.print(Markdown(successMessage_md), style="yellow")
+
+    os.chmod(f'{directory}{app_name}.desktop', 0o755) # Make it executable, just in case
+    exit()
 
 
 def ask_creation_data():
-    global app_name, app_url, app_comment
+    global app_name, app_url, app_comment, app_keywords, app_categories
 
-    print("Lets create your Webapp! \nFirst we need a name.\n")
-    app_name = input("App Name: ")
+    # ASK FOR THE NAME
+    print("[blue bold]Lets create your Webapp! [/blue bold] \nFirst we need a name.\n")
+    app_name = input("➡️ App Name: ")
 
+    #ASK FOR THE URL
     print("Now tell me the URL... \n")
-    input_url = input("App URL: ")
+    input_url = input("➡️ App URL: ")
     app_url = sanitize_url(input_url)
 
+    #ASK FOR A COMMENT - OPTIONAL
     print("Wanna add an app comment? \n")
-    app_comment = input("App Comment: ")
+    app_comment = input("➡️ App Comment: ")
 
-    print("Great! Creating your desktop app...")
-    create_file()
+    #ASK FOR A CATEGORY - OPTIONAL
+    print("What category is the app? (eg: Gaming, Messaging, Coding, etc...) \n[grey50 italic]Write nothing to skip [/grey50 italic]")
+    app_categories = input("➡️ App Category: ")
 
 
 # MAIN LOGIC
 def startCreator():
     ask_creation_data()
+
+    print("Great! Creating your desktop app...")
+    create_file()
